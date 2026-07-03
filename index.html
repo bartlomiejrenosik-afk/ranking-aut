@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ranking samochodów aukcyjnych</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033;background:#f5f7fb}
+    *{box-sizing:border-box} body{margin:0} .wrap{max-width:1500px;margin:auto;padding:28px}
+    h1{margin:0 0 6px;font-size:30px}.sub{margin:0 0 22px;color:#667085}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    input,select{border:1px solid #d0d5dd;border-radius:10px;padding:11px 13px;background:white;font-size:14px}
+    input{min-width:280px}.status{padding:12px 14px;border-radius:10px;margin-bottom:16px;background:#fff}
+    .tablebox{background:white;border:1px solid #e4e7ec;border-radius:14px;overflow:auto;box-shadow:0 8px 24px rgba(16,24,40,.05)}
+    table{width:100%;border-collapse:collapse;min-width:1350px} th,td{padding:13px 12px;border-bottom:1px solid #eaecf0;text-align:left;white-space:nowrap}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#667085;background:#f9fafb;position:sticky;top:0}
+    td{font-size:14px}.rank{font-weight:800;font-size:18px}.money{font-variant-numeric:tabular-nums}
+    .badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}
+    .LOW{background:#dcfae6;color:#067647}.MEDIUM{background:#fef0c7;color:#b54708}.HIGH{background:#fee4e2;color:#b42318}
+    .BUY{background:#dcfae6;color:#067647}.BUY_WITH_CAUTION{background:#fef0c7;color:#b54708}.ONLY_IF_CHEAP{background:#fffaeb;color:#b54708}.SKIP{background:#fee4e2;color:#b42318}
+    .positive{font-weight:800;color:#067647}.footer{color:#667085;font-size:12px;margin-top:12px}
+    @media(max-width:700px){.wrap{padding:16px}h1{font-size:24px}input{min-width:100%;width:100%}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ranking samochodów aukcyjnych</h1>
+  <p class="sub">Dane pobierane na żywo z Supabase</p>
+  <div class="toolbar">
+    <input id="search" placeholder="Szukaj marki, modelu lub rejestracji…">
+    <select id="risk"><option value="">Wszystkie poziomy ryzyka</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option></select>
+  </div>
+  <div id="status" class="status">Ładowanie danych…</div>
+  <div class="tablebox">
+    <table>
+      <thead><tr>
+        <th>Ranking</th><th>Samochód</th><th>Rok</th><th>Przebieg</th><th>Rejestracja</th>
+        <th>Cena aukcji</th><th>Limit zakupu</th><th>Szybka sprzedaż</th><th>Koszt przygotowania</th>
+        <th>Zysk min.</th><th>Zysk max.</th><th>Ocena</th><th>Ryzyko</th><th>Decyzja</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="footer">Kwoty są szacunkowe i wymagają aktualizacji wraz ze zmianą ceny aukcyjnej i sytuacji rynkowej.</div>
+</div>
+<script>
+const BASE='https://rrtgndxhqmefezwpjpnd.supabase.co';
+const KEY='sb_publishable_IY5STYDCWtRIM6-UVCfg4Q_sXn-jQI5';
+let cars=[];
+const pln=n=>n==null?'—':new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN',maximumFractionDigits:0}).format(Number(n));
+const num=n=>n==null?'—':new Intl.NumberFormat('pl-PL').format(Number(n));
+const decision={BUY:'KUP',BUY_WITH_CAUTION:'KUP OSTROŻNIE',ONLY_IF_CHEAP:'TYLKO TANIO',SKIP:'ODPUŚĆ'};
+function render(){
+  const q=document.querySelector('#search').value.toLowerCase();
+  const risk=document.querySelector('#risk').value;
+  const filtered=cars.filter(c=>(!risk||c.risk_level===risk)&&(`${c.brand} ${c.model} ${c.registration_number}`.toLowerCase().includes(q)));
+  document.querySelector('#rows').innerHTML=filtered.map(c=>`<tr>
+    <td class="rank">#${c.ranking??'—'}</td>
+    <td><strong>${c.brand??''} ${c.model??''}</strong></td><td>${c.production_year??'—'}</td><td>${num(c.mileage)} km</td><td>${c.registration_number??'—'}</td>
+    <td class="money">${pln(c.auction_price)}</td><td class="money">${pln(c.max_purchase_price)}</td>
+    <td class="money">${pln(c.quick_sale_price_min)} – ${pln(c.quick_sale_price_max)}</td><td class="money">${pln(c.estimated_preparation_cost)}</td>
+    <td class="money positive">${pln(c.potential_profit_min)}</td><td class="money positive">${pln(c.potential_profit_max)}</td>
+    <td>${c.overall_condition_score??'—'}/10</td><td><span class="badge ${c.risk_level}">${c.risk_level??'—'}</span></td>
+    <td><span class="badge ${c.purchase_decision}">${decision[c.purchase_decision]??c.purchase_decision??'—'}</span></td>
+  </tr>`).join('');
+  document.querySelector('#status').textContent=`Wyświetlono ${filtered.length} z ${cars.length} samochodów`;
+}
+async function load(){
+  try{
+    const r=await fetch(`${BASE}/rest/v1/car_ranking?select=*&order=ranking.asc`,{headers:{apikey:KEY,Authorization:`Bearer ${KEY}`}});
+    if(!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+    cars=await r.json(); render();
+  }catch(e){
+    document.querySelector('#status').textContent='Nie udało się pobrać danych: '+e.message;
+  }
+}
+document.querySelector('#search').addEventListener('input',render);
+document.querySelector('#risk').addEventListener('change',render);
+load();
+</script>
+</body>
+</html>
