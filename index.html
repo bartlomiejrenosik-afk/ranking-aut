@@ -1,73 +1,27 @@
-<!doctype html>
-<html lang="pl">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Prywatny ranking samochodów</title>
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prywatny ranking samochodów</title>
 <style>
-:root{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033;background:#f5f7fb}
-*{box-sizing:border-box}body{margin:0}.wrap{max-width:1500px;margin:auto;padding:28px}
-.card{max-width:420px;margin:10vh auto;background:#fff;padding:28px;border:1px solid #e4e7ec;border-radius:16px;box-shadow:0 10px 30px rgba(16,24,40,.08)}
-h1{margin:0 0 8px}.muted{color:#667085}.field{margin:14px 0}label{display:block;margin-bottom:6px;font-weight:600}
-input,select,button{border:1px solid #d0d5dd;border-radius:10px;padding:11px 13px;font-size:14px}
-input{width:100%}button{cursor:pointer;background:#172033;color:#fff;font-weight:700}.error{color:#b42318;margin-top:12px}
-.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
-.toolbar input{min-width:280px;width:auto}.status{padding:12px 14px;border-radius:10px;margin-bottom:16px;background:#fff}
-.tablebox{background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:auto;box-shadow:0 8px 24px rgba(16,24,40,.05)}
-table{width:100%;border-collapse:collapse;min-width:1350px}th,td{padding:13px 12px;border-bottom:1px solid #eaecf0;text-align:left;white-space:nowrap}
-th{font-size:12px;text-transform:uppercase;color:#667085;background:#f9fafb}td{font-size:14px}.rank{font-weight:800;font-size:18px}
-.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.LOW,.BUY{background:#dcfae6;color:#067647}
-.MEDIUM,.BUY_WITH_CAUTION,.ONLY_IF_CHEAP{background:#fef0c7;color:#b54708}.HIGH,.SKIP{background:#fee4e2;color:#b42318}
-.positive{font-weight:800;color:#067647}.hidden{display:none}.logout{background:#fff;color:#172033}.footer{color:#667085;font-size:12px;margin-top:12px}
-</style>
-</head>
-<body>
-<section id="loginView" class="card">
-<h1>Logowanie</h1><p class="muted">Ranking samochodów jest prywatny.</p>
-<form id="loginForm">
-<div class="field"><label>E-mail</label><input id="email" type="email" required autocomplete="username"></div>
-<div class="field"><label>Hasło</label><input id="password" type="password" required autocomplete="current-password"></div>
-<button type="submit">Zaloguj się</button><div id="loginError" class="error"></div>
-</form>
-</section>
-
-<main id="appView" class="wrap hidden">
-<div class="top"><div><h1>Ranking samochodów aukcyjnych</h1><p class="muted">Prywatny panel</p></div><button id="logout" class="logout">Wyloguj</button></div>
-<div class="toolbar"><input id="search" placeholder="Szukaj marki, modelu lub rejestracji…"><select id="risk"><option value="">Wszystkie poziomy ryzyka</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option></select></div>
-<div id="status" class="status">Ładowanie danych…</div>
-<div class="tablebox"><table><thead><tr><th>Ranking</th><th>Samochód</th><th>Rok</th><th>Przebieg</th><th>Rejestracja</th><th>Cena aukcji</th><th>Limit zakupu</th><th>Szybka sprzedaż</th><th>Koszt przygotowania</th><th>Zysk min.</th><th>Zysk max.</th><th>Ocena</th><th>Ryzyko</th><th>Decyzja</th></tr></thead><tbody id="rows"></tbody></table></div>
-<div class="footer">Kwoty są szacunkowe i wymagają aktualizacji wraz ze zmianą ceny aukcyjnej i sytuacji rynkowej.</div>
-</main>
-
+:root{font-family:Arial,sans-serif;color:#172033;background:#f5f7fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:1500px;margin:auto;padding:28px}.hidden{display:none!important}
+.card,.modalbox{background:#fff;border:1px solid #e4e7ec;border-radius:16px;box-shadow:0 10px 30px #10182814}.card{max-width:420px;margin:10vh auto;padding:28px}
+input,select,button{border:1px solid #d0d5dd;border-radius:10px;padding:11px 13px;font-size:14px}input{width:100%}button{cursor:pointer;background:#172033;color:#fff;font-weight:700}
+.field{margin:14px 0}.muted{color:#667085}.error{color:#b42318;margin-top:12px}.top,.toolbar,.modalhead{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.toolbar{justify-content:flex-start;margin:18px 0}.toolbar input{width:280px}
+.status{background:#fff;padding:12px;margin-bottom:16px;border-radius:10px}.tablebox{background:#fff;border:1px solid #e4e7ec;border-radius:14px;overflow:auto}table{width:100%;border-collapse:collapse;min-width:1250px}th,td{padding:12px;border-bottom:1px solid #eaecf0;text-align:left;white-space:nowrap}th{font-size:12px;color:#667085;background:#f9fafb}.clickable{cursor:pointer}.clickable:hover{background:#f9fafb}
+.badge{padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.LOW,.BUY{background:#dcfae6;color:#067647}.MEDIUM,.BUY_WITH_CAUTION,.ONLY_IF_CHEAP{background:#fef0c7;color:#b54708}.HIGH,.SKIP{background:#fee4e2;color:#b42318}.positive{color:#067647;font-weight:700}
+.modal{position:fixed;inset:0;background:#10182899;padding:30px;overflow:auto;z-index:10}.modalbox{max-width:1050px;margin:auto;padding:24px}.close,.logout{background:#fff;color:#172033}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}.stat{background:#f9fafb;padding:12px;border-radius:12px}.stat small{display:block;color:#667085}.detail{margin-top:24px}.detail table{min-width:700px}
+</style></head><body>
+<section id="login" class="card"><h1>Logowanie</h1><p class="muted">Prywatny ranking samochodów</p><form id="form"><div class="field"><label>E-mail</label><input id="email" type="email" required></div><div class="field"><label>Hasło</label><input id="password" type="password" required></div><button>Zaloguj się</button><div id="err" class="error"></div></form></section>
+<main id="app" class="wrap hidden"><div class="top"><div><h1>Ranking samochodów aukcyjnych</h1><p class="muted">Kliknij samochód, aby zobaczyć pełną kartę</p></div><button id="logout" class="logout">Wyloguj</button></div><div class="toolbar"><input id="search" placeholder="Szukaj…"><select id="risk"><option value="">Wszystkie ryzyka</option><option>LOW</option><option>MEDIUM</option><option>HIGH</option></select></div><div id="status" class="status">Ładowanie…</div><div class="tablebox"><table><thead><tr><th>#</th><th>Samochód</th><th>Rok</th><th>Przebieg</th><th>Rejestracja</th><th>Cena aukcji</th><th>Limit</th><th>Szybka sprzedaż</th><th>Zysk min.</th><th>Zysk max.</th><th>Ocena</th><th>Ryzyko</th><th>Decyzja</th></tr></thead><tbody id="rows"></tbody></table></div></main>
+<div id="modal" class="modal hidden"><div class="modalbox"><div class="modalhead"><div><h2 id="title"></h2><p id="reg" class="muted"></p></div><button id="close" class="close">✕</button></div><div id="body">Ładowanie…</div></div></div>
 <script>
-const BASE='https://rrtgndxhqmefezwpjpnd.supabase.co';
-const KEY='sb_publishable_IY5STYDCWtRIM6-UVCfg4Q_sXn-jQI5';
-let accessToken=null,cars=[];
-const pln=n=>n==null?'—':new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN',maximumFractionDigits:0}).format(Number(n));
-const num=n=>n==null?'—':new Intl.NumberFormat('pl-PL').format(Number(n));
-const decision={BUY:'KUP',BUY_WITH_CAUTION:'KUP OSTROŻNIE',ONLY_IF_CHEAP:'TYLKO TANIO',SKIP:'ODPUŚĆ'};
-
-function showLogin(){document.querySelector('#loginView').classList.remove('hidden');document.querySelector('#appView').classList.add('hidden')}
-function showApp(){document.querySelector('#loginView').classList.add('hidden');document.querySelector('#appView').classList.remove('hidden')}
-
-async function login(email,password){
- const r=await fetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
- const data=await r.json(); if(!r.ok) throw new Error(data.error_description||data.msg||'Błąd logowania');
- localStorage.setItem('car_session',JSON.stringify(data)); accessToken=data.access_token;
-}
-function render(){
- const q=document.querySelector('#search').value.toLowerCase(),risk=document.querySelector('#risk').value;
- const filtered=cars.filter(c=>(!risk||c.risk_level===risk)&&(`${c.brand} ${c.model} ${c.registration_number}`.toLowerCase().includes(q)));
- document.querySelector('#rows').innerHTML=filtered.map(c=>`<tr><td class="rank">#${c.ranking??'—'}</td><td><strong>${c.brand??''} ${c.model??''}</strong></td><td>${c.production_year??'—'}</td><td>${num(c.mileage)} km</td><td>${c.registration_number??'—'}</td><td>${pln(c.auction_price)}</td><td>${pln(c.max_purchase_price)}</td><td>${pln(c.quick_sale_price_min)} – ${pln(c.quick_sale_price_max)}</td><td>${pln(c.estimated_preparation_cost)}</td><td class="positive">${pln(c.potential_profit_min)}</td><td class="positive">${pln(c.potential_profit_max)}</td><td>${c.overall_condition_score??'—'}/10</td><td><span class="badge ${c.risk_level}">${c.risk_level??'—'}</span></td><td><span class="badge ${c.purchase_decision}">${decision[c.purchase_decision]??c.purchase_decision??'—'}</span></td></tr>`).join('');
- document.querySelector('#status').textContent=`Wyświetlono ${filtered.length} z ${cars.length} samochodów`;
-}
-async function loadCars(){
- const r=await fetch(`${BASE}/rest/v1/car_ranking?select=*&order=ranking.asc`,{headers:{apikey:KEY,Authorization:`Bearer ${accessToken}`}});
- if(r.status===401){logout();return} if(!r.ok) throw new Error(await r.text()); cars=await r.json();render();
-}
-function logout(){localStorage.removeItem('car_session');accessToken=null;cars=[];showLogin()}
-document.querySelector('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const err=document.querySelector('#loginError');err.textContent='';try{await login(document.querySelector('#email').value,document.querySelector('#password').value);showApp();await loadCars()}catch(x){err.textContent=x.message}});
-document.querySelector('#logout').addEventListener('click',logout);
-document.querySelector('#search').addEventListener('input',render);document.querySelector('#risk').addEventListener('change',render);
-(async()=>{try{const s=JSON.parse(localStorage.getItem('car_session')||'null');if(s?.access_token){accessToken=s.access_token;showApp();await loadCars()}else showLogin()}catch(e){logout()}})();
-</script>
-</body></html>
+const BASE='https://rrtgndxhqmefezwpjpnd.supabase.co',KEY='sb_publishable_IY5STYDCWtRIM6-UVCfg4Q_sXn-jQI5';let token=null,cars=[];
+const pln=n=>n==null?'—':new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN',maximumFractionDigits:0}).format(n),num=n=>new Intl.NumberFormat('pl-PL').format(n??0),esc=s=>String(s??'—').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const dec={BUY:'KUP',BUY_WITH_CAUTION:'KUP OSTROŻNIE',ONLY_IF_CHEAP:'TYLKO TANIO',SKIP:'ODPUŚĆ'};
+async function req(path){let r=await fetch(`${BASE}/rest/v1/${path}`,{headers:{apikey:KEY,Authorization:`Bearer ${token}`}});if(!r.ok)throw Error(await r.text());return r.json()}
+function showApp(x){login.classList.toggle('hidden',x);app.classList.toggle('hidden',!x)}
+function render(){let q=search.value.toLowerCase(),r=risk.value,f=cars.filter(c=>(!r||c.risk_level===r)&&`${c.brand} ${c.model} ${c.registration_number}`.toLowerCase().includes(q));rows.innerHTML=f.map(c=>`<tr class="clickable" data-id="${c.vehicle_id}"><td><b>#${c.ranking}</b></td><td><b>${esc(c.brand)} ${esc(c.model)}</b></td><td>${c.production_year}</td><td>${num(c.mileage)} km</td><td>${esc(c.registration_number)}</td><td>${pln(c.auction_price)}</td><td>${pln(c.max_purchase_price)}</td><td>${pln(c.quick_sale_price_min)}–${pln(c.quick_sale_price_max)}</td><td class="positive">${pln(c.potential_profit_min)}</td><td class="positive">${pln(c.potential_profit_max)}</td><td>${c.overall_condition_score}/10</td><td><span class="badge ${c.risk_level}">${c.risk_level}</span></td><td><span class="badge ${c.purchase_decision}">${dec[c.purchase_decision]||c.purchase_decision}</span></td></tr>`).join('');status.textContent=`Wyświetlono ${f.length} z ${cars.length} samochodów`;document.querySelectorAll('[data-id]').forEach(x=>x.onclick=()=>openCar(x.dataset.id))}
+function tbl(a,cols){if(!a.length)return'<p class="muted">Brak danych.</p>';return`<div class="tablebox"><table><thead><tr>${cols.map(x=>`<th>${x[0]}</th>`).join('')}</tr></thead><tbody>${a.map(o=>`<tr>${cols.map(x=>`<td>${esc(o[x[1]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+async function openCar(id){let c=cars.find(x=>x.vehicle_id===id);modal.classList.remove('hidden');title.textContent=`${c.brand} ${c.model}`;reg.textContent=`${c.production_year} • ${c.registration_number} • ${num(c.mileage)} km`;body.textContent='Ładowanie szczegółów…';try{let[d,t,p]=await Promise.all([req(`damages?vehicle_id=eq.${id}&select=category,element,description,severity&order=id`),req(`tyres?vehicle_id=eq.${id}&select=position,brand,model,size,tread_depth_mm&order=id`),req(`paint_measurements?vehicle_id=eq.${id}&select=element,thickness_min_um,thickness_max_um,painted,repaired,notes&order=id`)]);body.innerHTML=`<div class="grid"><div class="stat"><small>Cena aukcji</small><b>${pln(c.auction_price)}</b></div><div class="stat"><small>Limit zakupu</small><b>${pln(c.max_purchase_price)}</b></div><div class="stat"><small>Szybka sprzedaż</small><b>${pln(c.quick_sale_price_min)}–${pln(c.quick_sale_price_max)}</b></div><div class="stat"><small>Zysk</small><b>${pln(c.potential_profit_min)}–${pln(c.potential_profit_max)}</b></div></div><section class="detail"><h3>Uszkodzenia (${d.length})</h3>${tbl(d,[['Kategoria','category'],['Element','element'],['Opis','description'],['Waga','severity']])}</section><section class="detail"><h3>Opony (${t.length})</h3>${tbl(t,[['Pozycja','position'],['Marka','brand'],['Model','model'],['Rozmiar','size'],['Bieżnik mm','tread_depth_mm']])}</section><section class="detail"><h3>Pomiary lakieru (${p.length})</h3>${tbl(p,[['Element','element'],['Min µm','thickness_min_um'],['Max µm','thickness_max_um'],['Lakierowany','painted'],['Naprawiany','repaired']])}</section>`}catch(e){body.innerHTML=`<p class="error">${esc(e.message)}</p>`}}
+async function load(){cars=await req('car_ranking?select=*&order=ranking.asc');render()}
+form.onsubmit=async e=>{e.preventDefault();err.textContent='';try{let r=await fetch(`${BASE}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})}),d=await r.json();if(!r.ok)throw Error(d.error_description||d.msg);token=d.access_token;localStorage.setItem('car_token',token);showApp(true);await load()}catch(e){err.textContent=e.message}}
+logout.onclick=()=>{localStorage.removeItem('car_token');location.reload()};close.onclick=()=>modal.classList.add('hidden');modal.onclick=e=>{if(e.target===modal)modal.classList.add('hidden')};search.oninput=render;risk.onchange=render;
+(async()=>{token=localStorage.getItem('car_token');if(token){showApp(true);try{await load()}catch(e){localStorage.removeItem('car_token');location.reload()}}})();
+</script></body></html>
